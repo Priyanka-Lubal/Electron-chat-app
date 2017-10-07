@@ -26,7 +26,7 @@ function initSocket() {
   socket = io.connect(server);
   socket.on('connect', () => {
     appendText(`Connected to server ${server}`);
-    mongo.connect('mongodb://127.0.0.1/message', function (err, db) {
+    mongo.connect('mongodb://192.168.43.43/message', function (err, db) {
           collection = db.collection('messages')
           collection1 = db.collection('profile')
           if(flag==0){
@@ -37,11 +37,12 @@ function initSocket() {
           }
           else
           {
-            collection1.find({"username":username,"password":password},function(err,res){
+            collection1.find({"username":username,"password":password}).toArray(function(err,res){
               if(res.length)
                 console.log("Success!!");
               else
                 console.log("Invalid user or password!!");
+                
             });
           }
           $('#hello').innerHTML = "Hello "+ username;
@@ -67,7 +68,7 @@ function initSocket() {
   // });
   socket.on('message', (data) => {
     console.log(data);
-   if(screen == data.username )
+   if(screen == data.username || screen == "common chat")
       appendText(`__${data.username}:__ ${data.text}`);
   });
   socket.on('login', (data) => {
@@ -111,7 +112,7 @@ function initEvents() {
       screen = e.target.innerHTML;
       $('#chat-active').innerHTML = e.target.innerHTML;
       if(screen == 'common chat'){
-        mongo.connect('mongodb://127.0.0.1/message', function (err, db) {
+        mongo.connect('mongodb://192.168.43.43/message', function (err, db) {
               collection = db.collection('messages');
               console.log("HereIam:");
               collection.find( {receiver : "common chat"} ).sort({ _id : -1 }).limit(10).toArray(function(err,res){
@@ -127,7 +128,7 @@ function initEvents() {
               });
       }
       else{
-        mongo.connect('mongodb://127.0.0.1/message', function (err, db) {
+        mongo.connect('mongodb://192.168.43.43/message', function (err, db) {
               collection = db.collection('messages')
               console.log("Current screen:",screen);
               collection.find( { $or: [{receiver:screen},{receiver:username},{sender:screen},{sender:username}]} ).sort({ _id : -1 }).limit(10).toArray(function(err,res){
