@@ -10,7 +10,8 @@ let screen="common chat"
 var collection,collection1;
 var flag=0;
 var usersid = {};
-
+ //var groupflag=0;
+var groupmembers = {};
 window.onload = function () {
   initEvents();
 };
@@ -26,7 +27,7 @@ function initSocket() {
   socket = io.connect(server);
   socket.on('connect', () => {
     appendText(`Connected to server ${server}`);
-    mongo.connect('mongodb://192.168.43.43/message', function (err, db) {
+    mongo.connect('mongodb://127.0.0.1/message', function (err, db) {
           collection = db.collection('messages')
           collection1 = db.collection('profile')
           if(flag==0){
@@ -59,13 +60,7 @@ function initSocket() {
                   });
                 });
   });
-  // socket.on('bulk', (data) => {
-  //   if(data.length){
-  //     for(var x=data.length-1;x>=0;x=x-1){
-  //       appendText(`__${data[x].name}:__ ${data[x].message}`);
-  //     }
-  //   }
-  // });
+  
   socket.on('message', (data) => {
     console.log(data);
    if(screen == data.username || screen == "common chat")
@@ -104,6 +99,28 @@ function initEvents() {
       sendText();
     }
   });
+
+   $('#groupname').addEventListener('keydown', function(e){
+      var groupname = $('#groupname').value.trim();
+      console.log(groupname);
+
+   });
+
+   $('#user-list').addEventListener('click',function(e){
+     
+    if(username != e.target.innerHTML && groupname != null){
+      console.log(e.target.innerHTML);
+      mongo.connect('mongodb://127.0.0.1/message', function(err,db) {
+        collection = db.collection('group');
+        collection.insert({ member:e.target.innerHTML, groupname:groupname }, function (err, o) {
+                if (err) { console.warn(err.message); }
+                else { console.log("group inserted into db"); }
+        });
+      });
+    }
+
+   });
+
   $('#users').addEventListener('click',function(e){
     if(e.target.innerHTML!= "common chat"){
       console.log(usersid[e.target.innerHTML]);
@@ -112,7 +129,7 @@ function initEvents() {
       screen = e.target.innerHTML;
       $('#chat-active').innerHTML = e.target.innerHTML;
       if(screen == 'common chat'){
-        mongo.connect('mongodb://192.168.43.43/message', function (err, db) {
+        mongo.connect('mongodb://127.0.0.1/message', function (err, db) {
               collection = db.collection('messages');
               console.log("HereIam:");
               collection.find( {receiver : "common chat"} ).sort({ _id : -1 }).limit(10).toArray(function(err,res){
@@ -128,7 +145,7 @@ function initEvents() {
               });
       }
       else{
-        mongo.connect('mongodb://192.168.43.43/message', function (err, db) {
+        mongo.connect('mongodb://127.0.0.1/message', function (err, db) {
               collection = db.collection('messages')
               console.log("Current screen:",screen);
               collection.find( { $or: [{receiver:screen},{receiver:username},{sender:screen},{sender:username}]} ).sort({ _id : -1 }).limit(10).toArray(function(err,res){
@@ -198,6 +215,40 @@ function initEvents() {
   //       login();
   //     }
   // });
+  $('#make-group').addEventListener('click', function(e){
+    
+// document.getElementById('current-user').style.display="none";
+// document.getElementById('users').style.display="none";
+// document.getElementById('user-stats').style.display="none";
+// document.getElementById('Con').style.display="none";
+document.getElementById('first').style.display="none";
+document.getElementById('second').style.display="block";
+mongo.connect('mongodb://127.0.0.1/message', function (err, db) {
+              collection = db.collection('profile');
+              console.log("HereIam:");
+              collection.find({}, {"username":1,_id:0}).sort({ _id : -1 }).toArray(function(err,res){
+                    if(err) throw err;
+                    //io.sockets.emit('bulk',res);
+                    if(res.length){
+                      for(var x=res.length-1, i=0;x>=0;x=x-1){
+                        appendUsers(`${res[x].username}`);
+                        groupname[i++]=res[x].username;
+                        console.log(groupname[i-1]);
+                      }
+                    }
+                    console.log("collection",res);
+                });
+              });
+
+
+
+
+  const opts = { sanitize: true };
+  $('#user-list').innerHTML = Array.from(groupname).map(name => `<li>${marked(name, opts)}</li>`).join('');
+  // $('#').textContent = `${users.length-1} users online.`;
+
+
+  });
 
   $('#send-btn').addEventListener('click', sendText);
   $('#username').focus();
@@ -217,6 +268,14 @@ function sendText() {
 function appendText(text) {
   const opts = { sanitize: true };
   $('#chat-text').innerHTML += `${marked(text, opts)}\n`;
+}
+function appendUsers(text) {
+
+ // if(!groupflag)
+  const opts = { sanitize: true };
+  $('#user-list').innerHTML += `${marked(text, opts)}\n`;
+  
+//  groupflag=1;
 }
 
 function setStatus(text) {
