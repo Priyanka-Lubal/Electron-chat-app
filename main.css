@@ -32,6 +32,10 @@ main {
   padding: 1em;
 }
 
+#second {
+  display: none;
+}
+
 aside {
   min-width: 10em;
   flex: 0 1 auto;
@@ -73,6 +77,22 @@ aside > h3 {
 }
 
 #users > li:hover {
+  background-color: #eee;
+}
+
+
+#user-list {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 2em;
+}
+
+#user-list  {
+  padding: 0.25em;
+  cursor: pointer;
+}
+
+#user-list :hover {
   background-color: #eee;
 }
 
