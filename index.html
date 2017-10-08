@@ -12,7 +12,7 @@
       <div id="login-box">
         <div>
           <h2>Login</h2>
-          <input type="url" id="server-url" value="http://192.168.43.43:3010" />
+          <input type="url" id="server-url" value="http://localhost:3010" />
           <input type="text" placeholder="enter username" id="lusername" autofocus />
           <input type="text" placeholder="enter password" id="lpassword" autofocus />
           <button id="login" onclick="loginfunction()">LogIn</button>
@@ -22,7 +22,7 @@
       <div id="signup-box" style="display: none;">
         <div>
           <h2>SignUp</h2>
-          <input type="url" id="server-url" value="http://192.168.43.43:3010" />
+          <input type="url" id="server-url" value="http://localhost:3010" />
           <input type="text" placeholder="enter username" id="username" autofocus />
           <input type="text" placeholder="enter password" id="password" autofocus />
           <button id="nlogin" onclick="nloginfunction()">LogIn</button>
@@ -34,13 +34,19 @@
       </div>
       <div class="content">
         <aside>
-          <div id="make-group">
-            <button ></button>
-          </div>
+          <div id="first">
+          <button id="make-group">Create Group</button>
           <div id="current-user"></div>
-          <h3>Connected Users</h3>
+          <h3 id="Con">Connected Users</h3>
           <ul id="users"></ul>
           <div id="user-stats"></div>
+          </div>
+          <div id="second">
+            <button id="back-btn" onclick="back()">Back</button>
+            <input type="text" name="Group-name" placeholder="Enter group name....." id="groupname"/>
+            <ul id="user-list"> </ul>
+
+          </div>
         </aside>
         <div id="chat">
           <div id="chat-active"></div>
@@ -68,6 +74,12 @@
       function Signupfunction() {
         document.getElementById("signup-box").style.display="none";
       }
+      
+      function back(){
+        document.getElementById("first").style.display="block";
+        document.getElementById("second").style.display="none";
+      }
+     
 
     </script>>
   </body>
